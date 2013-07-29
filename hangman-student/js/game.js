@@ -1,11 +1,14 @@
 var word = {
-  secretWord: "ruby",
+  secretWord: "",
+  secretWordWithBlanks: "",
   wordList: ['ruby', 'rails', 'javascript', 'array', 'hash', 'underscore', 'sinatra', 'model', 'controller', 'view', 'devise', 'authentication', 'capybara', 'jasmine', 'cache', 'sublime', 'terminal', 'system', 'twitter', 'facebook', 'function', 'google', 'amazon', 'development', 'data', 'design', 'inheritance', 'prototype', 'gist', 'github', 'agile', 'fizzbuzz', 'route', 'gem', 'deployment', 'database'],
 
   // Selects a random word from the word list sets the secret word
-  setSecretWord: function(){
-    // this.secretWord = _.shuffle(word.wordList)[5];
-    return "ruby";
+  setSecretWord: function() {
+    this.secretWord = _.shuffle(word.wordList)[5];console.log(this.secretWord);
+    for ( var i = 0; i < this.secretWord.length; i++ ) {
+      this.secretWordWithBlanks += ("_");
+    }
   },
 
   // Takes an array of letters as input and returns an array of two items:
@@ -13,10 +16,18 @@ var word = {
   // 2) An array of all the guessed letters that were not in the secret word
   checkLetters: function(guessedLetters){
     var correctLetters = _.intersection(this.secretWord, guessedLetters);
-    var wrongLetters = _.reject(guessedLetters, function(letter){
-      return _.contains(correctLetters, letter);
+    var wrongLetters = _.difference(guessedLetters, correctLetters);
+    var displaySecret = [];
+    _.each(this.secretWord, function(letter){
+      if (_.contains(correctLetters, letter)) {
+        displaySecret += letter;
+      } else {
+        displaySecret += "_";
+      }
     });
-    return [correctLetters, wrongLetters];
+    console.log(displaySecret);
+    console.log(wrongLetters);
+    return [displaySecret, wrongLetters];
   }
 };
 
@@ -25,10 +36,23 @@ var player = {
   guessedLetters: [],
 
   // Takes a new letter as input and updates the game
-  makeGuess: function(letter){},
+  // guesses come from word.checkLetters(guessedLetters)
+  makeGuess: function(letter){
+    player.guessedLetters.push(letter);
+    player.checkWin();
+    player.checkLose();
+    game.updateDisplay(word.checkLetters(player.guessedLetters)[0].join(" "), player.guessedLetters);
+  },
+  //
 
   // Check if the player has won and end the game if so
-  checkWin: function(wordString){},
+  checkWin: function(wordString){
+  if (_.contains(wordString, "_")) {
+    return false;
+  } else {
+    return true;
+  }
+},
 
   // Check if the player has lost and end the game if so
   checkLose: function(wrongLetters){}
@@ -42,7 +66,8 @@ var game = {
   giveUp: function(){},
 
   // Update the display with the parts of the secret word guessed, the letters guessed, and the guesses remaining
-  updateDisplay: function(secretWordWithBlanks, guessedLetters, guessesLeft){}
+  updateDisplay: function(secretWordWithBlanks, guessedLetters, guessesLeft){
+     document.getElementById("guessedLetters").innerHTML = player.guessedLetters.join(" ");
 };
 
 window.onload = function(){
